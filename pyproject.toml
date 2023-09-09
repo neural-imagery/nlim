@@ -1,0 +1,2 @@
+[tool.isort]
+py_version=310
