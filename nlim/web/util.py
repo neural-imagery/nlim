@@ -24,10 +24,10 @@ def save_metadata(data_filename: str, metadata: str):
 
 
 def post_fnirs_data_metadata(file_path: str, metadata: str):
-    file_as_path: Path = Path(file_path)
+    file_as_path: Path = Path(file_path).absolute()
     filename: str = file_as_path.name
     requests.post(
-        "http://35.186.191.80/dataset/add",
+        "http://35.186.191.80:5000/dataset/add",
         data={"metadata": metadata},
         files={"fnirs_data": (filename, file_as_path.read_bytes())},
     )
