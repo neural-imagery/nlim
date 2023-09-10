@@ -3,14 +3,10 @@ import os
 import pandas as pd
 import streamlit as st
 
+from nlim.web.constants import METADATA_PATH, UPLOADS_DIR
+from nlim.web.util import save_metadata, save_uploaded_file
+
 # Directory to save uploaded files
-UPLOADS_DIR = "uploads"
-
-
-def save_uploaded_file(uploaded_file):
-    # Save the uploaded file to the uploads directory
-    with open(os.path.join(UPLOADS_DIR, uploaded_file.name), "wb") as f:
-        f.write(uploaded_file.getbuffer())
 
 
 def main():
@@ -21,22 +17,14 @@ def main():
     uploaded_file = st.file_uploader("Upload .nirs File")
 
     if uploaded_file is not None:
-        save_uploaded_file(uploaded_file)
+        save_uploaded_file(uploaded_file.getbuffer(), uploaded_file.name)
         st.success("File uploaded successfully!")
 
     # Sidebar - Metadata
     metadata = st.text_area("Enter Metadata")
 
     if st.button("Save Metadata"):
-        metadata_df = pd.DataFrame(
-            {"File": [uploaded_file.name], "Metadata": [metadata]}
-        )
-        metadata_df.to_csv(
-            "metadata.csv",
-            mode="a",
-            header=not os.path.exists("metadata.csv"),
-            index=False,
-        )
+        save_metadata(uploaded_file.name, metadata=metadata)
         st.success("Metadata saved successfully!")
 
     # Main content - Display Uploaded Files and Metadata
@@ -49,10 +37,10 @@ def main():
 
     st.header("Cross-Dataset Metadata")
 
-    if not os.path.exists("metadata.csv"):
+    if not os.path.exists(METADATA_PATH):
         st.error("No datasets present!")
     else:
-        metadata_df = pd.read_csv("metadata.csv")
+        metadata_df = pd.read_csv(METADATA_PATH)
         st.write(metadata_df)
 
         st.header("Download")
@@ -75,15 +63,15 @@ def main():
         if st.checkbox("Check to enable delete button"):
             if st.button("Delete dataset"):
                 os.remove(file_path)
-                metadata_df = pd.read_csv("metadata.csv")
+                metadata_df = pd.read_csv(METADATA_PATH)
                 metadata_df = metadata_df[metadata_df["File"] != selected_file]
                 if len(metadata_df) == 0:
-                    os.remove("metadata.csv")
+                    os.remove(METADATA_PATH)
                 else:
                     metadata_df.to_csv(
-                        "metadata.csv",
+                        METADATA_PATH,
                         mode="w",
-                        header=not os.path.exists("metadata.csv"),
+                        header=not os.path.exists(METADATA_PATH),
                         index=False,
                     )
                 st.success("Deleted and updated metadata")
