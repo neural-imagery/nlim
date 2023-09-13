@@ -1,15 +1,3 @@
-function decodeJsonBinary(encodedData) {
-  // Convert the encoded data to a Uint8Array
-  const binaryData = new Uint8Array(encodedData);
-
-  // Decode the binary data as a string
-  const decodedString = new TextDecoder().decode(binaryData);
-
-  // Parse the decoded string as JSON
-  const decodedJson = JSON.parse(decodedString);
-
-  return decodedJson;
-}
 /*
 server.listen(9000, function() {
   console.log('server listening to %j', server.address());
@@ -55,6 +43,18 @@ function handleConnection(conn) {
   }
 }
 */
+function decodeJsonBinary(encodedData) {
+  // Convert the encoded data to a Uint8Array
+  const binaryData = new Uint8Array(encodedData);
+
+  // Decode the binary data as a string
+  const decodedString = new TextDecoder().decode(binaryData);
+
+  // Parse the decoded string as JSON
+  const decodedJson = JSON.parse(decodedString);
+
+  return decodedJson;
+}
 const net = require('net');
 
 const server = net.createServer((socket) => {
@@ -63,24 +63,34 @@ const server = net.createServer((socket) => {
 
   socket.on('data', (data) => {
     // Append the received data to the buffer
-    dataBuffer = Buffer.concat([dataBuffer, data.slice(4)]);
+    dataBuffer = Buffer.concat([dataBuffer, data]);
     console.log(data)
     console.log(data.length)
+    const timestamp = new Date().toLocaleString(); // Get the current date and time as a string
+    // console.log(`[${timestamp}] ${message}`);
+    console.log(`time: ${timestamp}`);
+    // decoded_data = decodeJsonBinary(d)
+    // console.log('[%s] decoded data is %s: %j', timestamp, remoteAddress, d);
 
     if (messageLength == -1) {
         function parseJsonBuffer(jsonBuffer) {
           let jsonString = '';
           let i = 0;
 
-          while (i < jsonBuffer.length && jsonBuffer[i] !== "\\") { // 10 represents the newline character
+          while (i < jsonBuffer.length && jsonBuffer[i]) { // 10 represents the newline character
             new_char = String.fromCharCode(jsonBuffer[i]);
+            if (new_char === " ") {
+              break;
+            }
+
             jsonString += new_char
             console.log(new_char)
             i++;
           }
 
-          console.log(`json string is ${jsonString}`)
           const parsedInt = parseInt(jsonString);
+          console.log(parsedInt)
+          dataBuffer = dataBuffer.slice(i + 1)
 
           return parsedInt;
         }
@@ -91,9 +101,10 @@ const server = net.createServer((socket) => {
 
 
     // Check if the complete message has been received
+    console.log(`databuffer length: ${dataBuffer.length}`)
     if (dataBuffer.length >= messageLength) {
         // Extract the complete message from the buffer
-        const message = dataBuffer.slice(4, 4 + messageLength);
+        const message = dataBuffer.slice(0, messageLength);
 
         // Process the complete message
         const decoded_msg = decodeJsonBinary(message)
@@ -101,6 +112,8 @@ const server = net.createServer((socket) => {
 
         // Remove the processed message from the buffer
         dataBuffer = dataBuffer.slice(4 + messageLength);
+
+        messageLength = -1
     }
   });
 });
