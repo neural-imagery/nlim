@@ -17,9 +17,9 @@ try:
     import time
 
     while True:
-        data = [random.randint(0, 100) for _ in range(600)]
+        data = [random.randint(0, 100) for _ in range(32)]
         noise = [random.randint(0, 100) for _ in range(600)]
-        data_to_send = json.dumps({"d": [{"data": data, "noise": noise}]})
+        data_to_send = json.dumps({"d": [{"data": data} for _ in range(5)]})
         data_to_send = f"{len(data_to_send)} {data_to_send}"
         data_to_send = data_to_send.encode("utf-8")
 
@@ -34,7 +34,7 @@ try:
         print(
             "Received:", response.decode("utf-8")
         )  # Assuming the response is a string
-        time.sleep(2)
+        time.sleep(0.1)
 
 except Exception as e:
     print("Error:", e)
