@@ -34,7 +34,7 @@ try:
         print(
             "Received:", response.decode("utf-8")
         )  # Assuming the response is a string
-        time.sleep(0.1)
+        time.sleep(0.5)
 
 except Exception as e:
     print("Error:", e)
