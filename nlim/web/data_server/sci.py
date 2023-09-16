@@ -368,7 +368,7 @@ def filter(
             pad="reflect_limited",
             verbose=use_verbose,
         )
-        print("custom filtered = {}".format(filtered))
+        # print("custom filtered = {}".format(filtered))
         # break
     # update info if filter is applied to all data channels,
     # and it's not a band-stop filter

@@ -16,3 +16,8 @@ middleware:
 ```
 python example_client.py
 ```
+
+Launch the signal processor endpoint:
+```
+python signal_processor.py
+```
