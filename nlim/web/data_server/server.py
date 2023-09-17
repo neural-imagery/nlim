@@ -35,6 +35,7 @@ def broadcast_device_data(device_data: list[int]):
 
 
 async def handle_client(websocket, path):
+    logger.info(f"Connected new client on {path}")
     path_to_clients[path].add(websocket)
 
     try:

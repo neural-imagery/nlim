@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import socket
+from typing import Union, cast
 
 from websockets.sync import client
 
@@ -51,11 +52,6 @@ channel_to_index: list[int] = [
 channel_to_index = [val - 1 for val in channel_to_index]  # 0-index
 logger.info(f"channel to index {channel_to_index}")
 
-# Re-do the map so we map from (index in output array -> index in input array)
-index_to_channel = [channel_to_index.index(idx) for idx in range(len(channel_to_index))]
-logger.info(f"index to channel {index_to_channel}")
-assert sum(index_to_channel) == sum(channel_to_index) == sum(range(32))
-
 
 def handle_connection(client_socket, client_address: str):
     logger.info(f"Got connection {client_socket}, {client_address}")
@@ -74,25 +70,32 @@ def handle_connection(client_socket, client_address: str):
             logger.info(f"Stated message length is {message_length}")
 
             data = data[separator_index + 1 :]
-            logger.debug(f"Received data", data.decode("utf-8"))
+            logger.debug(f"Received data {data.decode('utf-8')}")
 
         message_buffer.extend(data)
 
         if len(message_buffer) >= message_length:
+            logger.debug("Time to send message")
             # Expected format:
             # {"d": [{"data": [...ints...]} * timestemps]}
             # But if there's only one "data": dict, then there will be no list
             try:
                 decoded_data: dict = json.loads(message_buffer.decode("utf-8"))
 
-                data_dicts = decoded_data.get("d", [])
+                data_dicts: Union[list, list[dict]] = decoded_data.get("d", [])
+                if isinstance(data_dicts, dict):
+                    data_dicts = [data_dicts]
+                data_dicts = cast(list[dict], data_dicts)
+
+                assert isinstance(data_dicts, list)
                 for data_dict in data_dicts:
+                    assert isinstance(data_dict, dict)
                     if "data" not in data_dict:
                         continue
 
                     channel_data: list[int] = data_dict["data"]
                     reordered_data: list[int] = [
-                        channel_data[idx] for idx in index_to_channel
+                        channel_data[idx] for idx in channel_to_index
                     ]
                     device_data_endpoint_client.send(json.dumps(reordered_data))
             except json.decoder.JSONDecodeError:
