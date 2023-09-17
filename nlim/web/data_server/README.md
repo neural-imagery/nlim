@@ -1,23 +1,11 @@
 # Running
 
-Compile and launch the middleware server:
+Launch the platform server
 ```
-tsc server.ts
-node server.js
-```
-
-Launch the data generator:
-```
-python data_generator.py
+python server.py
 ```
 
-Launch an example client that will receive messages passed forward by the
-middleware:
+Launch the device endpoint:
 ```
-python example_client.py
-```
-
-Launch the signal processor endpoint:
-```
-python signal_processor.py
+python device_data_server.py
 ```

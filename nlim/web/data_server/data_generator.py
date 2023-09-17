@@ -3,7 +3,7 @@ import socket
 
 # Define the target host and port
 host = "127.0.0.1"  # Replace with the target hostname or IP address
-port = 9000  # Replace with the target port number
+port = 8000  # Replace with the target port number
 
 # Create a socket object
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -34,7 +34,7 @@ try:
         print(
             "Received:", response.decode("utf-8")
         )  # Assuming the response is a string
-        time.sleep(0.5)
+        time.sleep(2)
 
 except Exception as e:
     print("Error:", e)
