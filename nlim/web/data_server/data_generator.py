@@ -3,7 +3,7 @@ import socket
 
 # Define the target host and port
 host = "127.0.0.1"  # Replace with the target hostname or IP address
-port = 8000  # Replace with the target port number
+port = 9000  # Replace with the target port number
 
 # Create a socket object
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
