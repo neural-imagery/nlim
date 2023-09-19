@@ -6,3 +6,4 @@ websockets
 mne
 scipy
 numpy
+pyserial
