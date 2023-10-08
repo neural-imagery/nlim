@@ -1,7 +1,5 @@
-flask
 pandas
 pre-commit
-streamlit
 websockets
 mne
 scipy
