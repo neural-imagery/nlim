@@ -8,7 +8,7 @@ from scipy.io import loadmat
 from nlim.data_server.constants import DEVICE_DATA_HOST, DEVICE_DATA_PORT
 from nlim.util import get_logger
 
-logger = get_logger()
+logger = get_logger(__name__)
 
 address: tuple[str, int] = (DEVICE_DATA_HOST, DEVICE_DATA_PORT)
 

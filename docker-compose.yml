@@ -1,0 +1,28 @@
+version: '3'
+services:
+  server:
+    build: .
+    image: "ni/server"
+
+  device_data_server:
+    extends: server
+    environment:
+      PLATFORM_HOST: "platform_server"
+    ports:
+      - "9000:9000"
+    command: "python3 nlim/data_server/device_data_server.py"
+
+  platform_server:
+    extends: server
+    ports:
+      - "9001:9001"
+    command: "python3 nlim/data_server/server.py"
+
+  demo:
+    extends: server
+    environment:
+      DEVICE_DATA_HOST: "device_data_server"
+    command: "python3 nlim/data_server/data_generators/data_generator_from_file.py"
+    depends_on:
+      - platform_server
+      - device_data_server
