@@ -1,18 +1,17 @@
 import asyncio
 import json
-import logging
-import os
 from collections import defaultdict
 from typing import DefaultDict
 
 import websockets
 
-from nlim.web.data_server.processors.device_data_processor import DeviceDataProcessor
-from nlim.web.data_server.processors.processor import Processor
-from nlim.web.data_server.processors.signal_processor import SignalQualityProcessor
+from nlim.data_server.constants import PLATFORM_PORT
+from nlim.data_server.processors.device_data_processor import DeviceDataProcessor
+from nlim.data_server.processors.processor import Processor
+from nlim.data_server.processors.signal_processor import SignalQualityProcessor
+from nlim.util import get_logger
 
-logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO").upper())
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 path_to_clients: DefaultDict[str, set] = defaultdict(set)
 path_to_processor: dict[str, Processor] = {
@@ -57,9 +56,8 @@ async def handle_client(websocket, path):
 async def main():
     # Run the pipeline
     stop = asyncio.Future()
-    PORT = 9001
-    server = await websockets.serve(handle_client, "0.0.0.0", PORT)
-    logger.info(f"Running platform on port {PORT}")
+    server = await websockets.serve(handle_client, "0.0.0.0", PLATFORM_PORT)
+    logger.info(f"Running platform on port {PLATFORM_PORT}")
     await stop
 
 

@@ -2,14 +2,27 @@ import json
 import logging
 import os
 import socket
+import time
 from typing import Union, cast
 
 from websockets.sync import client
 
-logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO").upper())
-logger = logging.getLogger(__name__)
+from nlim.data_server.constants import DEVICE_DATA_PORT, PLATFORM_HOST, PLATFORM_PORT
+from nlim.util import get_logger
 
-device_data_endpoint_client = client.connect("ws://127.0.0.1:9001/device_data/source")
+logger = get_logger(__name__)
+
+platform_client = None
+while platform_client is None:
+    try:
+        platform_client = client.connect(
+            f"ws://{PLATFORM_HOST}:{PLATFORM_PORT}/device_data/source"
+        )
+    except ConnectionError:
+        logger.exception("Error while connecting to data platform")
+        time.sleep(2)
+
+
 data_endpoint = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Matlab indices to re-sort the array -- index 1 (old) goes to index 1 (new),
@@ -97,7 +110,7 @@ def handle_connection(client_socket, client_address: str):
                     reordered_data: list[int] = [
                         channel_data[idx] for idx in channel_to_index
                     ]
-                    device_data_endpoint_client.send(json.dumps(reordered_data))
+                    platform_client.send(json.dumps(reordered_data))
             except json.decoder.JSONDecodeError:
                 logger.exception("Buffer contents: %s", message_buffer.decode("utf-8"))
             finally:
@@ -105,9 +118,9 @@ def handle_connection(client_socket, client_address: str):
                 message_length = -1
 
 
-data_endpoint.bind(("0.0.0.0", 9000))
+data_endpoint.bind(("0.0.0.0", DEVICE_DATA_PORT))
 data_endpoint.listen(5)
-logger.info("Server is listening on port 9000")
+logger.info(f"Server is listening on port {DEVICE_DATA_PORT}")
 
 while True:
     client_socket, client_address = data_endpoint.accept()
