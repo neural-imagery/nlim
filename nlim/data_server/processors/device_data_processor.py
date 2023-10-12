@@ -2,7 +2,7 @@ import json
 from collections import deque
 from typing import Deque
 
-from nlim.web.data_server.processors.processor import Processor
+from nlim.data_server.processors.processor import Processor
 
 num_channels: int = 32
 

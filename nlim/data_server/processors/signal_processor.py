@@ -4,8 +4,8 @@ from typing import Deque
 
 import numpy as np
 
-from nlim.web.data_server.processors.processor import Processor
-from nlim.web.data_server.sci import optical_density, scalp_coupling_index
+from nlim.data_server.processors.processor import Processor
+from nlim.data_server.sci import optical_density, scalp_coupling_index
 
 num_channels: int = 32
 
