@@ -1,21 +1,27 @@
+import json
 import random
 import socket
+import time
 
-# Define the target host and port
-host = "127.0.0.1"
-port = 9000
+from nlim.data_server.constants import DEVICE_DATA_HOST, DEVICE_DATA_PORT
+from nlim.util import get_logger
 
-# Create a socket object
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+logger = get_logger()
+
+address: tuple[str, int] = (DEVICE_DATA_HOST, DEVICE_DATA_PORT)
+
+# Connect to the server
+device_data_server_client = None
+while device_data_server_client is None:
+    try:
+        device_data_server_client = socket.create_connection(
+            address=address, timeout=10
+        )
+    except ConnectionError:
+        logger.exception("Error while connecting to device data server")
+        time.sleep(2)
 
 try:
-    # Connect to the server
-    sock.connect((host, port))
-
-    # Data to send (as bytes)
-    import json
-    import time
-
     # Mimics the form of data received from our TechEn backend
     while True:
         data = [random.randint(0, 100) for _ in range(32)]
@@ -25,7 +31,7 @@ try:
         data_to_send = data_to_send.encode("utf-8")
 
         # Send the data
-        sock.send(data_to_send)
+        device_data_server_client.send(data_to_send)
 
         print("Sent:", data_to_send)
         time.sleep(2)
@@ -33,4 +39,4 @@ try:
 except Exception as e:
     print("Error:", e)
 finally:
-    sock.close()
+    device_data_server_client.close()
